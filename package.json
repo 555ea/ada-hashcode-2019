@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/555ea/ada-hashcode-2019/issues"
   },
-  "homepage": "https://github.com/555ea/ada-hashcode-2019#readme"
+  "homepage": "https://github.com/555ea/ada-hashcode-2019#readme",
+  "dependencies": {
+    "lodash": "^4.17.11"
+  }
 }
