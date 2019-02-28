@@ -27,7 +27,12 @@ function readInputFile(name, callback) {
 function writeOutputFile(name, slides, callback) {
     let resultString = `${slides.length}\n`;
     slides.map((slide, index) => {
-        resultString += `${slide.map(({photoIndex}) => photoIndex).join(' ')}\n`
+        resultString += `${slide.map((slide) => {
+            if(!slide){
+                console.log(slides, index);
+            }
+            return slide.photoIndex;
+        }).join(' ')}\n`
     })
     fs.writeFile(`./output/${name}`, resultString, function (err, data) {
         callback('success!');
