@@ -24,20 +24,12 @@ function readInputFile(name, callback) {
     });
 }
 
-function writeOutputFile(name, vehicleRides, rides, callback) {
-    if (!callback) {
-        callback = rides;
-    }
-    const vehicleRideIndexArrays = [];
-    vehicleRides.forEach((vehicleRide) => {
-        vehicleRideIndexArrays[vehicleRide.vehicle] = vehicleRideIndexArrays[vehicleRide.vehicle] || [];
-        vehicleRideIndexArrays[vehicleRide.vehicle].push(vehicleRide.rideIndex);
-    });
-    let resultString = '';
-    vehicleRideIndexArrays.map((vehicleRideIndexArray, vehicleIndex) => {
-        resultString += `${vehicleRideIndexArray.length} ${vehicleRideIndexArray.join(' ')}\n`
+function writeOutputFile(name, slides, callback) {
+    let resultString = `${slides.length}\n`;
+    slides.map((slide, index) => {
+        resultString += `${slide.map(({photoIndex}) => photoIndex).join(' ')}\n`
     })
-    fs.writeFile(`./files/output/${name}`, resultString, function (err, data) {
+    fs.writeFile(`./output/${name}`, resultString, function (err, data) {
         callback('success!');
     });
 }
