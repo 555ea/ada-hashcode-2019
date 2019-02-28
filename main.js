@@ -1,8 +1,8 @@
 const {readInputFile, writeOutputFile} = require('./input-output');
-const { intersection, first, last, orderBy } = require('lodash');
+const { intersection, first, last, flatten, orderBy } = require('lodash');
 
 // const files = ['a_example.txt', 'b_lovely_landscapes.txt', 'c_memorable_moments.txt', 'd_pet_pictures.txt', 'e_shiny_selfies.txt'];
-const fileName = 'd_pet_pictures.txt';
+const fileName = 'c_memorable_moments.txt';
 
 readInputFile(fileName, (response) => {
     let {photos, photosCount} = response;
@@ -11,6 +11,7 @@ readInputFile(fileName, (response) => {
     const horizontalPhotos = photos.filter((photo) => photo.isHorizontal);
     let slides = [];
     const slidedPhotosObject = {};
+    let processedVerticalSlides;
     const mapped = [verticalPhotos, horizontalPhotos].map((array, index) =>
         {
             const photo = first(array);
@@ -25,12 +26,11 @@ readInputFile(fileName, (response) => {
                     }
                 });
                 const tagsByIndexArray = Object.keys(tagsByIndex).map((photoIndex)=>({photoIndex, tagsIntersectionCount: tagsByIndex[photoIndex]}));
-                const sorted = orderBy(tagsByIndexArray, ['tagsIntersectionCount'], [(index === 0) ? 'asc' : 'desc']);
                 if(index === 0){
                     // vertical
-                    const first = sorted.shift();
-                    slides = [[photo, first]];
-                    const verticalSlides = [];
+                    const sorted = orderBy(tagsByIndexArray, ['tagsIntersectionCount'], ['asc']);
+                    const firstVertical = sorted.shift();
+                    let verticalSlides = [[photo, firstVertical]];
                     sorted.forEach((photo) => {
                         const lastSlide = last(verticalSlides);
                         if (!lastSlide || lastSlide.length === 2){
@@ -39,10 +39,23 @@ readInputFile(fileName, (response) => {
                             lastSlide.push(photo);
                         }
                     });
-                    slides = [...slides, ...verticalSlides];
+                    processedVerticalSlides = verticalSlides.map((array) => {
+                        const firstPhoto = photos[first(array).photoIndex];
+                        const lastPhoto = photos[last(array).photoIndex];
+                        return {
+                            slide: array,
+                            tagsIntersectionCount: intersection(firstPhoto.tags, lastPhoto.tags).length
+                        };
+                    });
                 } else {
                     // horizontal
-                    slides = [...slides, [photo], ...sorted.map((photo) => [photo])]
+                    const sorted = orderBy(flatten([processedVerticalSlides, tagsByIndexArray]), ['tagsIntersectionCount'], ['desc']);
+                    slides = sorted.map((item) => {
+                        if(item.slide){
+                            return item.slide;
+                        }
+                        return [item];
+                    })
                 }
             }
         }
